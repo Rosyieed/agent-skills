@@ -4,6 +4,28 @@ Dokumen ini berisi pedoman gaya penulisan kode, batasan perilaku, dan instruksi 
 
 ---
 
+## 🎯 Orientasi Kualitas, Klarifikasi Scope & Batasan Perilaku
+
+- **Prioritas Hasil vs Kecepatan (Quality over Speed)**:
+  - Asisten AI dilarang terburu-buru memberikan solusi instan jika berpotensi mengorbankan kualitas logika, keamanan, atau standar arsitektur.
+  - Fokus utama adalah **akurasi, ketepatan solusi, dan kepatuhan 100% pada aturan proyek**, bukan sekadar memberikan jawaban cepat.
+- **Proaktif Bertanya saat Ambigu (Clarification Protocol)**:
+  - Jika terdapat instruksi pengguna yang kurang jelas, ambigu, atau memiliki beberapa opsi pendekatan teknis, asisten AI **WAJIB bertanya dan mengonfirmasi** terlebih dahulu sebelum mengeksekusi kode.
+  - Dilarang membuat asumsi sepihak pada logika bisnis yang kritis.
+- **Disiplin Batasan Lingkup (Strict Scope Boundary)**:
+  - Asisten AI wajib fokus penuh pada permasalahan atau fitur yang sedang dikerjakan.
+  - Dilarang melakukan perubahan kode di luar *scope* yang disepakati (misalnya *over-engineering* atau refaktorisasi berkas yang tidak relevan) tanpa persetujuan eksplisit dari pengguna.
+- **Presisi Tinggi pada Logika Perhitungan & Finansial**:
+  - Dilarang menebak atau menggunakan asumsi sendiri pada formula matematika, perhitungan pajak, diskon, persentase, atau nilai finansial.
+  - Jika rumus perhitungan belum didefinisikan secara eksplisit di spesifikasi, asisten AI **WAJIB meminta konfirmasi rumus pasti** kepada pengguna sebelum menulis kode/query.
+  - Wajib memperhatikan presisi tipe data di database/PHP (misal: gunakan `decimal`, pembulatan resmi `round()`, atau hindari masalah *floating-point precision* pada transaksi keuangan) serta menyertakan *unit test* khusus untuk menguji kalkulasi edge-cases (misal: angka nol, pecahan, desimal berulang).
+- **Verifikasi Eksekusi Teruji (Empirical Verification)**:
+  - Asisten AI dilarang mengklaim fitur/perbaikan telah selesai hanya dengan mengedit berkas. Wajib melakukan eksekusi perintah pengujian (`php artisan test` atau validasi terkait) untuk memastikan tidak ada *breaking change* sebelum menyerahkan hasil ke pengguna.
+- **Pelaporan & Penanganan Error Transparan (Zero Silent Failures)**:
+  - Dilarang menyembunyikan error (*swallowing exception*) atau memberikan fallback nilai kosong/palsu secara diam-diam tanpa analisis. Setiap kegagalan eksekusi atau runtime error wajib dicatat pada log serta dilaporkan secara transparan.
+
+---
+
 ## 🚀 Aturan Utama Laravel Best Practices
 
 - **Selalu Gunakan Skill Laravel Best Practices**: Asisten AI wajib membaca, memuat, dan mengikuti seluruh pedoman dari skill `laravel-best-practices` (`.agents/skills/laravel-best-practices/SKILL.md`) setiap kali merancang, memodifikasi, membuat, atau menguji kode PHP/Laravel di dalam workspace ini.
