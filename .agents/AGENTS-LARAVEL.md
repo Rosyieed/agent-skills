@@ -19,10 +19,12 @@ Dokumen ini berisi pedoman gaya penulisan kode, batasan perilaku, dan instruksi 
 
 ---
 
-## 🎨 Keahlian Tambahan (Brainstorming & UI)
+## 🎨 Keahlian Tambahan (Brainstorming, UI & Review)
 
 - **Gunakan Skill Brainstorming**: Sebelum memulai perancangan fitur baru, perubahan alur bisnis yang kompleks, atau integrasi pihak ketiga, asisten AI wajib membaca dan menerapkan panduan dari skill `brainstorming` (`.agents/skills/brainstorming/SKILL.md`) guna mengeksplorasi kebutuhan dan menyelaraskan rencana implementasi dengan pengguna.
 - **Gunakan Skill Impeccable**: Saat membuat, memodifikasi, atau memoles tampilan antarmuka visual (berkas Blade/HTML, CSS, Javascript, dan tata letak UI), asisten AI wajib membaca dan mengikuti pedoman dari skill `impeccable` (`.agents/skills/impeccable/SKILL.md`) untuk memastikan antarmuka yang dihasilkan memiliki estetika premium, responsif, ramah UX, dan bebas dari desain yang polos atau membosankan atau AI Slop.
+- **Gunakan Skill Caveman Review**: Setelah menulis, memodifikasi, atau merefaktorisasi kode, asisten AI wajib membaca dan menggunakan panduan dari skill `caveman-review` (`.agents/skills/caveman-review/SKILL.md`) untuk melakukan peninjauan ulang kode (*code review*) secara ultra-ringkas, padat, dan berorientasi aksi (format: lokasi, masalah, solusi) guna memastikan keandalan serta kebersihan kode sebelum diselesaikan.
+- **Gunakan Skill Graphify & Verifikasi Kode Langsung**: Saat melakukan analisis arsitektur, penelusuran alur/relasi antar-modul, atau analisis dampak perubahan (*impact analysis*), asisten AI wajib mengutamakan kueri peta pengetahuan (`graphify-out/graph.json` atau `/graphify query "<pertanyaan>"`) untuk menemukan keterkaitan berkas secara presisi. Sebelum melakukan penulisan atau pengeditan kode, asisten AI **TETAP WAJIB membaca dan memeriksa isi berkas fisik secara langsung** guna memastikan kebenaran logika terbaru. Setelah penambahan modul atau perubahan struktur kode yang signifikan, perbarui peta pengetahuan menggunakan `/graphify . --update`.
 
 ---
 
@@ -96,12 +98,13 @@ Dokumen ini berisi pedoman gaya penulisan kode, batasan perilaku, dan instruksi 
 
 ## 🧪 Alur Kerja Pengguna (User Workflow)
 
-- **Brainstorming → Persetujuan → Implementasi → Testing → Commit**:
+- **Brainstorming → Persetujuan → Implementasi → Code Review → Testing → Commit**:
   1. **Brainstorming**: Eksplorasi kebutuhan dan rancangan solusi bersama pengguna sebelum menulis kode.
   2. **Rencana Implementasi**: Susun rencana teknis terperinci dan minta persetujuan eksplisit dari pengguna sebelum mengeksekusi.
   3. **Implementasi**: Tulis kode sesuai rencana yang disetujui. Jika menemukan masalah signifikan, perbarui rencana dan minta persetujuan ulang.
-  4. **Testing**: Jalankan seluruh test suite (`php artisan test`) dan pastikan **100% lulus** sebelum pekerjaan dianggap selesai.
-  5. **Commit Message**: Buat pesan komit Git menggunakan skill `work-helper` setelah seluruh kode dan test selesai dan diperiksa.
+  4. **Code Review (Caveman Review)**: Tinjau ulang kebersihan, keandalan, dan standar kode yang baru ditulis menggunakan skill `caveman-review` untuk memastikan tidak ada celah/masalah tersembunyi.
+  5. **Testing**: Jalankan seluruh test suite (`php artisan test`) dan pastikan **100% lulus** sebelum pekerjaan dianggap selesai.
+  6. **Commit Message**: Buat pesan komit Git menggunakan skill `work-helper` setelah seluruh kode, review, dan test selesai.
 
 - **Perubahan Iteratif**:
   - Pengguna sering meminta penyesuaian tambahan setelah fitur utama selesai (misalnya: "sesuaikan juga seeder-nya", "tambahkan guard di UI-nya juga"). Asisten harus siap menambahkan lapisan baru tanpa merusak yang sudah ada, dan selalu menjalankan ulang test suite setelah setiap perubahan.
