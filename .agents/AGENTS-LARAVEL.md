@@ -4,17 +4,25 @@ Dokumen ini berisi pedoman gaya penulisan kode, batasan perilaku, dan instruksi 
 
 ---
 
-## 🚀 Aturan Utama Laravel Developer
+## 🚀 Aturan Utama Laravel Best Practices
 
-- **Selalu Gunakan Skill Laravel Developer**: Asisten AI wajib membaca, memuat, dan mengikuti seluruh pedoman dari skill `laravel-developer` (`.agents/skills/laravel-developer/SKILL.md`) setiap kali merancang, memodifikasi, membuat, atau menguji kode PHP/Laravel di dalam workspace ini.
-- **Type Hinting**: Wajib menggunakan *strict type-hinting* pada parameter metode dan *return type* (kembalian fungsi) untuk semua berkas PHP baru maupun hasil refaktorisasi.
-- **Validasi Form Request**: Hindari menulis validasi inline langsung di dalam kontroler. Selalu gunakan kelas **Form Request** terpisah (di bawah namespace `App\Http\Requests\`) untuk menangani validasi input pengguna.
-- **Transaksi Basis Data & Try-Catch**: Setiap operasi tulis data (*write operations*) seperti insert, update, dan delete yang memiliki kompleksitas atau potensi kegagalan wajib dibungkus dalam blok `DB::beginTransaction()`, `DB::commit()`, dan `DB::rollBack()` bersama penanganan exception `try-catch` serta pencatatan log error terperinci.
-- **Pengujian Unit & Fitur (Testing)**: Wajib menulis berkas pengujian fitur (*feature tests*) menggunakan PHPUnit untuk setiap fitur baru yang dibangun guna memastikan keandalan kode 100% lulus sebelum pengerjaan dianggap selesai.
-- **Aturan Tambahan Senior Laravel**:
-  - Hindari penggunaan raw SQL query jika bisa dicapai menggunakan Eloquent ORM or Query Builder.
-  - Selalu lakukan *eager loading* (`with()`) untuk relasi terkait guna menghindari masalah N+1 query.
-  - Jangan menuliskan *business logic* rumit secara langsung di dalam controller; gunakan kelas Service atau Model Hooks jika diperlukan.
+- **Selalu Gunakan Skill Laravel Best Practices**: Asisten AI wajib membaca, memuat, dan mengikuti seluruh pedoman dari skill `laravel-best-practices` (`.agents/skills/laravel-best-practices/SKILL.md`) setiap kali merancang, memodifikasi, membuat, atau menguji kode PHP/Laravel di dalam workspace ini.
+- **Type Hinting & Strict Typing**: Wajib menggunakan *strict type-hinting* pada parameter metode dan *return type* (kembalian fungsi) untuk semua berkas PHP baru maupun hasil refaktorisasi.
+- **Validasi Form Request**: Hindari menulis validasi inline langsung di dalam kontroler. Selalu gunakan kelas **Form Request** terpisah (di bawah namespace `App\Http\Requests\`). Gunakan `$request->validated()` saja — dilarang menggunakan `$request->all()`.
+- **Transaksi Basis Data, Try-Catch & Locking**: Setiap operasi tulis data (*write operations*) seperti insert, update, dan delete yang memiliki kompleksitas atau potensi kegagalan wajib dibungkus dalam blok `DB::beginTransaction()`, `DB::commit()`, dan `DB::rollBack()` bersama penanganan exception `try-catch` serta pencatatan log error terperinci. Gunakan `Cache::lock()` atau `lockForUpdate()` untuk mencegah *race condition* pada transaksi sensitif.
+- **Pengujian Unit & Fitur (Testing)**: Wajib menulis berkas pengujian fitur (*feature tests*) menggunakan PHPUnit/Pest untuk setiap fitur baru yang dibangun. Gunakan `LazilyRefreshDatabase` dan assertion bawaan seperti `assertModelExists()` guna memastikan keandalan kode 100% lulus sebelum pengerjaan dianggap selesai.
+- **Kueri Basis Data & Performa Eloquent**:
+  - Hindari penggunaan raw SQL query jika bisa dicapai menggunakan Eloquent ORM atau Query Builder. Dilarang melakukan string concatenation pada SQL dengan input pengguna (gunakan parameter binding).
+  - Selalu lakukan *eager loading* (`with()`) atau `withCount()` untuk relasi terkait guna menghindari masalah N+1 query.
+  - Pilih hanya kolom yang dibutuhkan (`select('id', 'name')`), hindari `SELECT *`. Gunakan `chunkById()` atau `cursor()` untuk pemrosesan dataset besar agar hemat penggunaan memori.
+  - Manfaatkan `addSelect()` subqueries dan `whereIn` + `pluck()` daripada `whereHas` berlebih demi optimasi indeks database.
+- **Manajemen Model & Eloquent Casts**:
+  - Selalu definisikan `$fillable` atau `$guarded` pada setiap model.
+  - Gunakan method `casts()` untuk tipe data casting (termasuk `encrypted` cast untuk kolom sensitif).
+- **Arsitektur Controller & Service**:
+  - Batasi metode controller agar tetap ramping (< 10 baris). Ekstrak *business logic* yang kompleks ke kelas Service, Single-purpose Action, atau Model Hooks.
+- **Penggunaan Helper Laravel vs Native PHP**:
+  - Utamakan helper bawaan Laravel (`Str::*`, `Arr::*`, `Number::*`, `Uri::*`, `Str::of()`) daripada fungsi bawaan PHP native.
   - Pastikan selalu menggunakan standar penulisan kode PHP sesuai PSR-12.
 
 ---
@@ -90,9 +98,15 @@ Dokumen ini berisi pedoman gaya penulisan kode, batasan perilaku, dan instruksi 
 ## ⚙️ Praktik Terbaik & Standar Integrasi
 
 - **Manajemen Environment**: Larangan keras *hardcode* kredensial atau konfigurasi statis di dalam kode. Selalu gunakan file `.env`. Pemanggilan fungsi `env()` hanya diizinkan di dalam file konfigurasi (`config/`). Di dalam logika kode (Controller, Service, dll), wajib menggunakan fungsi `config()`.
-- **Background Jobs & Antrean**: Proses komputasi berat, ekspor/impor data besar, atau interaksi dengan API pihak ketiga wajib menggunakan Laravel Queue/Jobs agar antarmuka pengguna (UI) tetap responsif dan tidak mengalami "hang" atau *timeout*.
+- **Background Jobs & Antrean (Queue)**: Proses komputasi berat, ekspor/impor data besar, atau interaksi dengan API pihak ketiga wajib menggunakan Laravel Queue/Jobs.
+  - Nilai `retry_after` pada antrean harus selalu lebih besar dari `timeout` job, sertakan exponential backoff (contoh: `[1, 5, 10]`).
+  - Gunakan `ShouldBeUnique` untuk mencegah duplikasi pemrosesan job dan selalu implementasikan metode `failed()` untuk penanganan kegagalan job.
+- **Strategi Caching & Data Transien**:
+  - Utamakan `Cache::remember()` atau `Cache::flexible()` dibanding get/put manual. Gunakan `once()` atau `Cache::memo()` untuk mengurangi pembacaan berulang dalam satu siklus request.
 - **Pengelolaan Aset Frontend (Blade)**: Jangan menulis tag `<script>` atau `<style>` secara acak di tengah-tengah file Blade. Selalu manfaatkan `@push('scripts')` dan `@push('styles')` agar injeksi aset selalu terkumpul rapi di tempat yang semestinya pada layout utama.
-- **Standar Format API**: Jika membangun endpoint API eksternal atau endpoint internal berbasis AJAX/JSON, format respons harus konsisten menggunakan *Laravel API Resources* dan menggunakan struktur standar (contoh: `{ "success": boolean, "message": string, "data": object/array }`).
+- **Standar Format API & HTTP Client**:
+  - Jika membangun endpoint API eksternal atau endpoint internal berbasis AJAX/JSON, format respons harus konsisten menggunakan *Laravel API Resources* dan menggunakan struktur standar (contoh: `{ "success": boolean, "message": string, "data": object/array }`).
+  - Untuk pemanggilan HTTP eksternal melalui `Http::*`, selalu tentukan `timeout` dan `connectTimeout` eksplisit serta manfaatkan `retry()` dengan exponential backoff.
 
 ---
 
