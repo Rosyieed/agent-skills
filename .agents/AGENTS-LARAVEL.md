@@ -9,9 +9,9 @@ Dokumen ini berisi pedoman gaya penulisan kode, batasan perilaku, dan instruksi 
 - **Prioritas Hasil vs Kecepatan (Quality over Speed)**:
   - Asisten AI dilarang terburu-buru memberikan solusi instan jika berpotensi mengorbankan kualitas logika, keamanan, atau standar arsitektur.
   - Fokus utama adalah **akurasi, ketepatan solusi, dan kepatuhan 100% pada aturan proyek**, bukan sekadar memberikan jawaban cepat.
-- **Proaktif Bertanya saat Ambigu (Clarification Protocol)**:
-  - Jika terdapat instruksi pengguna yang kurang jelas, ambigu, atau memiliki beberapa opsi pendekatan teknis, asisten AI **WAJIB bertanya dan mengonfirmasi** terlebih dahulu sebelum mengeksekusi kode.
-  - Dilarang membuat asumsi sepihak pada logika bisnis yang kritis.
+- **Nol Asumsi & Wajib Klarifikasi (Zero Assumption Policy)**:
+  - Dilarang keras membuat asumsi sepihak dalam bentuk apa pun (baik pada logika bisnis, struktur data, alur proses, maupun pendekatan teknis). Tidak ada yang boleh diasumsikan.
+  - Segala sesuatu yang tidak terdefinisi secara 100% eksplisit, masih ambigu, memiliki keraguan, atau menyediakan beberapa opsi pendekatan **WAJIB ditanyakan dan dikonfirmasi langsung kepada pengguna** sebelum merancang atau mengeksekusi kode.
 - **Disiplin Batasan Lingkup (Strict Scope Boundary)**:
   - Asisten AI wajib fokus penuh pada permasalahan atau fitur yang sedang dikerjakan.
   - Dilarang melakukan perubahan kode di luar *scope* yang disepakati (misalnya *over-engineering* atau refaktorisasi berkas yang tidak relevan) tanpa persetujuan eksplisit dari pengguna.
